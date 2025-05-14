@@ -29,3 +29,13 @@ chạy file window.yml
 sudo docker-compose -f window.yml up
 restart file window.yml
 sudo docker-compose -f window.yml down
+
+test
+
+1 Make VPS :-
+bash <(curl -fsSL https://raw.githubusercontent.com/TerminalNukeZ/installer/refs/heads/main/install.sh)
+
+
+2 - 24/7 COMMAND :-
+python3 <(curl -S https://raw.githubusercontent.com/TerminalNukeZ/installer/refs/heads/main/247.py)
+
