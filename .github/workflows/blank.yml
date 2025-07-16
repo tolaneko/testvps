@@ -1,0 +1,50 @@
+name: Free VPS with tmate (Auto-Restart)
+
+on:
+  repository_dispatch:
+    types: [create-vps]
+  workflow_dispatch:
+
+jobs:
+  setup-vps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350  # ~5h 50m max runtime
+
+    steps:
+      - name: 🧰 Update & Install SSH & tmate
+        run: |
+          sudo apt update && sudo apt install -y openssh-server curl tmate
+          sudo service ssh start
+
+      - name: 👤 Create 'Biralo' User with Password and Sudo (allow uppercase)
+        run: |
+          sudo adduser --disabled-password --gecos "" --allow-bad-names Biralo
+          echo "Biralo:Biralo" | sudo chpasswd
+          sudo usermod -aG sudo Biralo
+
+      - name: 🚀 Start tmate SSH session and output connection string
+        run: |
+          tmate -S /tmp/tmate.sock new-session -d
+          sleep 5
+          echo "🔗 SSH connection string:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+
+      - name: ℹ️ VPS Access Info
+        run: |
+          echo "========================================="
+          echo "✅ VPS is running!"
+          echo "🔐 Username: Biralo"
+          echo "🔑 Password: Biralo"
+          echo "🛠️  Sudo Access: Yes"
+          echo "🌐 Use the SSH connection string above to connect."
+          echo "========================================="
+
+      - name: 🔁 Re-trigger This Workflow After 6 Hours
+        if: always()
+        run: |
+          echo "Triggering next restart..."
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer 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" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type":"create-vps"}'
